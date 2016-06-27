@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Solar System - Scientific Visualization Project</title>
+  <meta name="application-name" content="Application Name">
+  <script src="js/libs/three.min.js"></script>
+  <script src="js/libs/OrbitControls.js"></script>
+  <script src="js/libs/Detector.js"></script>
+  <script src="js/libs/stats.min.js"></script>
+  <style>
+    /* general styling */
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: #000000 url("textures/bg_stars.jpg") no-repeat;
+      background-size: cover;
+      font-size: 16px;
+      font-family: 'Source Code Pro', sans-serif;
+      color: #fefefe;
+    }
+    #solar-system {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+    }
+    /* ========================== */
+    /*  PLANET INFORMATION PANEL  */
+    /* ========================== */
+    #planet-info {
+      display: none;
+      position: absolute;
+      top: 0;
+      right: 0;
+      z-index: 1000;
+      background-color: rgba(12, 12, 12, 0.8);
+    }
+    #planet-info table {
+      padding: 4px;
+    }
+    #planet-info table th {
+      font-size: 1.8em;
+    }
+    #planet-info table td {
+      padding: 2px 4px;
+      font-size: 1.1em;
+      vertical-align: bottom;
+    }
+    #planet-info table td:nth-child(2) {
+      position: relative;
+      right: -2px;
+      text-align: right;
+    }
+    #name {
+      text-align: center;
+      font-size: 1.5em;
+    }
+    #close-planet-panel {
+      display: block;
+      position: relative;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    /* ========================== */
+    /*          CENTER BOX        */
+    /* ========================== */
+    #info-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      width: 100vw;
+      height: 100vh;
+      /*background-color: #00ff00;*/
+    }
+    .msg {
+      position: relative;
+      width: 50%;
+      background-color: rgba(21, 21, 21, 0.6);
+      text-align: center;
+    }
+    /* ========================== */
+    /*       INFORMATION BOX      */
+    /* ========================== */
+    #info {
+      display: none;
+    }
+    #info h1 {
+      font-size: 2.2em;
+      -webkit-margin-after: 0.2em;
+    }
+    #info span {
+      position: relative;
+      margin: -2px;
+    }
+    #info p {
+      position: relative;
+      width: 80%;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    #info p a {
+      color: #334455;
+      text-decoration: underline;
+    }
+    #info p a strong {
+      transition: all 0.5s;
+    }
+    #info p a strong:hover {
+      color: #00bb55;
+    }
+    #info p a:visited {
+      color: #22aaff;
+    }
+    #author-info {
+      position: relative;
+      height: 2em;
+    }
+    #author {
+      position: absolute;
+      left: 0;
+      width: 50%;
+      /*margin: 4px;*/
+    }
+    #university {
+      position: absolute;
+      right: 0;
+      width: 50%;
+      /*right: 16px;*/
+    }
+    #close-info {
+      position: absolute;
+      top: 0;
+      right: 0;
+    }
+    .btn-close {
+      margin: 12px;
+      background-color: transparent;
+      border: none;
+      color: #999999;
+      cursor: pointer;
+    }
+    .btn-close:hover {
+      color: #efefef;
+    }
+    /* ========================== */
+    /*       KEY BINDING BOX      */
+    /* ========================== */
+    #keybindings {
+      display: none;
+    }
+    #keybindings h1 {
+      font-size: 2.2em;
+      -webkit-margin-after: 0.2em;
+    }
+    #keybindings p {
+      position: relative;
+      margin-top: -2px;
+      margin-left: auto;
+      margin-right: auto;
+      width: 80%;
+    }
+    #t-keys {
+      position: relative;
+      width: 80%;
+      margin: 0 auto 16px;
+    }
+    #t-keys td {
+      width: 50%;
+    }
+    #tr-divider {
+      display: block;
+      margin: 8px 2px 4px;
+    }
+    #close-keys {
+      position: absolute;
+      top: 0;
+      right: 0;
+    }
+    /* ========================== */
+    /*          HELP BOX          */
+    /* ========================== */
+    #legend {
+      position: absolute;
+      bottom: 0;
+      right: 0;
+      text-align:  center;
+    }
+  </style>
+</head>
+<body>
+  <div id="solar-system"></div>
+
+  <div id="planet-info">
+    <table>
+      <thead>
+        <tr>
+          <th id="name" colspan="3"></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Mass</td>
+          <td id="mass"></td>
+          <td>10<sup>24</sup> kg</td>
+        </tr>
+        <tr>
+          <td>Diameter</td>
+          <td id="diameter"></td>
+          <td>km</td>
+        </tr>
+        <tr>
+          <td>Density</td>
+          <td id="density"></td>
+          <td>kg/m<sup>3</sup></td>
+        </tr>
+        <tr>
+          <td>Gravity</td>
+          <td id="gravity"></td>
+          <td>m/s<sup>2</sup></td>
+        </tr>
+        <tr>
+          <td>Escape Velocity</td>
+          <td id="escapeVelocity"></td>
+          <td>km/s</td>
+        </tr>
+        <tr>
+          <td>Rotation Period</td>
+          <td id="rotationPeriod"></td>
+          <td>hours</td>
+        </tr>
+        <tr>
+          <td>Length Of Day</td>
+          <td id="lengthOfDay"></td>
+          <td>hours</td>
+        </tr>
+        <tr>
+          <td>Distance From Sun</td>
+          <td id="distanceFromSun"></td>
+          <td>10<sup>6</sup> km</td>
+        </tr>
+        <tr>
+          <td>Perihelion</td>
+          <td id="perihelion"></td>
+          <td>10<sup>6</sup> km</td>
+        </tr>
+        <tr>
+          <td>Aphelion</td>
+          <td id="aphelion"></td>
+          <td>10<sup>6</sup> km</td>
+        </tr>
+        <tr>
+          <td>Orbital Period</td>
+          <td id="orbitalPeriod"></td>
+          <td>days</td>
+        </tr>
+        <tr>
+          <td>Orbital Velocity</td>
+          <td id="orbitalVelocity"></td>
+          <td>km/s</td>
+        </tr>
+        <tr>
+          <td>Orbital Inclination</td>
+          <td id="orbitalInclination"></td>
+          <td>degrees</td>
+        </tr>
+        <tr>
+          <td>Orbital Eccentricity</td>
+          <td id="orbitalEccentricity"></td>
+        </tr>
+        <tr>
+          <td>Obliquity To Orbit</td>
+          <td id="obliquityToOrbit"></td>
+          <td>degrees</td>
+        </tr>
+        <tr>
+          <td>Mean Temperature</td>
+          <td id="meanTemperature"></td>
+          <td>°C</td>
+        </tr>
+      </tbody>
+    </table>
+    <button type="button" class="btn-close" id="close-planet-panel">Close</button>
+  </div>
+  <div id="info-container">
+    <div class="msg" id="info">
+      <h1>Solar System</h1>
+      <span><em>A Scientific Visualization Project</em></span>
+      <p>This project is meant to show what I learnt from Scientific Visualization course. Solar System is realize through <a href="http://threejs.org"><strong>Three JS</strong></a> framework, that will power the WEBGL technology. WEBGL is used to render the entire project.</p>
+      <div id="author-info">
+        <div id="author">Daniele Bissoli - 170889</div>
+        <div id="university">University of Trento - DISI</div>
+      </div>
+      <button type="button" class="btn-close" id="close-info">Close</button>
+    </div>
+    <div class="msg" id="keybindings">
+      <h1>Help</h1>
+      <p><em>Here you can find all the shortcuts to navigate through the project</em></p>
+      <table id="t-keys">
+        <thead>
+          <tr>
+            <th>Key</th>
+            <th>Mean</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>SPACE</td>
+            <td>toggle solar system update</td>
+          </tr>
+          <tr>
+            <td>R</td>
+            <td>reset the viewport</td>
+          </tr>
+          <tr>
+            <th></th>
+            <th id="tr-divider">Show planets information</th>
+          </tr>
+          <tr>
+            <td>M</td>
+            <td>Mercury</td>
+          </tr>
+          <tr>
+            <td>V</td>
+            <td>Venus</td>
+          </tr>
+          <tr>
+            <td>E</td>
+            <td>Earth</td>
+          </tr>
+          <tr>
+            <td>A</td>
+            <td>Mars</td>
+          </tr>
+          <tr>
+            <td>J</td>
+            <td>Jupiter</td>
+          </tr>
+          <tr>
+            <td>S</td>
+            <td>Saturn</td>
+          </tr>
+          <tr>
+            <td>U</td>
+            <td>Uranus</td>
+          </tr>
+          <tr>
+            <td>N</td>
+            <td>Neptune</td>
+          </tr>
+          <tr>
+            <td>P</td>
+            <td>Pluto</td>
+          </tr>
+        </tbody>
+      </table>
+      <button type="button" class="btn-close" id="close-keys">Close</button>
+    </div>
+  </div>
+  <div id="legend">
+    <span>I - Show Project Info</span>
+    <span>H - Help</span>
+  </div>
+</body>
+<script src="js/planet.js"></script>
+<script src="js/solarSystem.js"></script>
+<script src="js/main.js"></script>
+<!-- Script to load font -->
+<script type="text/javascript">
+  WebFontConfig = {
+    google: { families: [ 'Source+Sans+Pro::latin' ] }
+  };
+  (function() {
+    var wf = document.createElement('script');
+    wf.src = 'https://ajax.googleapis.com/ajax/libs/webfont/1/webfont.js';
+    wf.type = 'text/javascript';
+    wf.async = 'true';
+    var s = document.getElementsByTagName('script')[0];
+    s.parentNode.insertBefore(wf, s);
+  })();
+</script>
+</html>
