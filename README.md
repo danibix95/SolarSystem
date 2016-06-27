@@ -10,6 +10,9 @@ I choose to develop a 3D model of the Solar System because I'm amazed from what 
 ## Why ThreeJs
 During the course we were exposed to Processing language, a very powerful tool that can be used to build every kind of visualization. But, since I worked a lot with web technologies, I decided to switch to a different approach. Working with web technologies also helped me to develop a cross platform application that can be execute through a simple browser on every device. At first I started to look at Javascript porting of Processing, but I was not so much happy with it. Hence I search something different around the web technology and I found [ThreeJs][1]. It is a light and powerful Javascript 3D library used to simplify the work with WebGL (the counter part of OpenGL for local application). With this library I develop this project.
 
+## Data and Textures
+All planets data were found on a NASA Planetary Fact Sheet [website][3], while textures were found on Solar System Scope [website][4].
+
 ## How to run the project
 To run the project you need to start a local web server and serve files from it. This is an issue due to browsers' [**same origin policy** ][2] security restrictions, that doesn't let a local running file to load textures and JSON data that are not under the same place (*URL* and *port*).
 
@@ -23,8 +26,6 @@ If you have installed python package on your PC you can follow this procedure:
         
         python3 -m http.server 8090
 - Go to the following link in your browser: http://localhost:8090/index.html
-## Data and Textures
-All planet data were found on a NASA [website][3] that keep all planetary data, while textures were found on Solar Syste Scope [website][4].
 
 ## Contacts
 Daniele Bissoli - 170889
