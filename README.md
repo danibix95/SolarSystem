@@ -28,7 +28,6 @@ All planet data were found on a NASA [website][3] that keep all planetary data, 
 
 ## Contacts
 Daniele Bissoli - 170889
-daniele.bissoli@studenti.unitn.it
 DISI - University of Trento
 
  [1]: http://threejs.org
